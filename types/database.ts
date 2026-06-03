@@ -47,6 +47,45 @@ export type Database = {
         };
         Relationships: ProductRelationship[];
       };
+      retailer_inventory: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          product_id: string;
+          stock_quantity: number;
+          retail_price: number;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          product_id: string;
+          stock_quantity: number;
+          retail_price: number;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          product_id?: string;
+          stock_quantity?: number;
+          retail_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "retailer_inventory_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retailer_inventory_retailer_id_fkey";
+            columns: ["retailer_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
