@@ -20,7 +20,7 @@ type SalesQuery = {
   select: (columns: string) => {
     eq: (column: string, value: string) => {
       gte: (column: string, value: string) => Promise<{
-        data: { total: number }[] | null;
+        data: { total_amount: number }[] | null;
         error: { message: string } | null;
       }>;
       order: (
@@ -36,11 +36,17 @@ type SalesQuery = {
   };
 };
 
+export interface CompleteRetailerSaleResponse {
+  success: boolean;
+  sale_id: string;
+  total_amount: number;
+}
+
 type RpcClient = {
   rpc: (
     fn: "complete_retailer_sale",
     args: { p_payment_method: string; p_items: Json }
-  ) => Promise<{ data: string | null; error: { message: string } | null }>;
+  ) => Promise<{ data: CompleteRetailerSaleResponse | null; error: { message: string } | null }>;
 };
 
 function salesTable(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -60,7 +66,7 @@ export function getStartOfTodayIso(): string {
 export async function listRecentSales(retailerId: string, limit = 50) {
   const supabase = await createClient();
   return salesTable(supabase)
-    .select("id, subtotal, total, payment_method, created_at")
+    .select("id, total_amount, payment_method, status, created_at")
     .eq("retailer_id", retailerId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -69,7 +75,7 @@ export async function listRecentSales(retailerId: string, limit = 50) {
 export async function getTodaySalesRows(retailerId: string) {
   const supabase = await createClient();
   return salesTable(supabase)
-    .select("total")
+    .select("total_amount")
     .eq("retailer_id", retailerId)
     .gte("created_at", getStartOfTodayIso());
 }
@@ -77,7 +83,7 @@ export async function getTodaySalesRows(retailerId: string) {
 export async function completeSaleTransaction(
   paymentMethod: PaymentMethod,
   items: CheckoutLineInput[]
-) {
+): Promise<{ data: CompleteRetailerSaleResponse | null; error: { message: string } | null }> {
   const supabase = await createClient();
   return rpcClient(supabase).rpc("complete_retailer_sale", {
     p_payment_method: paymentMethod,
@@ -106,9 +112,9 @@ export function mapSaleRow(data: unknown): SaleSummary | null {
   if (!row.id || !row.created_at) return null;
   return {
     id: row.id,
-    subtotal: Number(row.subtotal),
-    total: Number(row.total),
+    total_amount: Number(row.total_amount),
     payment_method: row.payment_method as PaymentMethod,
+    status: row.status,
     created_at: row.created_at,
   };
 }

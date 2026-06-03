@@ -27,7 +27,7 @@ export function SalesHistoryTable({ sales }: SalesHistoryTableProps) {
             <tr>
               <th className="px-4 py-3 text-left font-medium text-slate-600">Date & time</th>
               <th className="px-4 py-3 text-left font-medium text-slate-600">Payment</th>
-              <th className="px-4 py-3 text-right font-medium text-slate-600">Subtotal</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
               <th className="px-4 py-3 text-right font-medium text-slate-600">Total</th>
             </tr>
           </thead>
@@ -38,11 +38,11 @@ export function SalesHistoryTable({ sales }: SalesHistoryTableProps) {
                 <td className="px-4 py-3 text-slate-600">
                   {formatPaymentMethod(sale.payment_method)}
                 </td>
-                <td className="px-4 py-3 text-right text-slate-600">
-                  {formatCurrency(sale.subtotal)}
+                <td className="px-4 py-3 text-slate-600">
+                  {sale.status}
                 </td>
                 <td className="px-4 py-3 text-right font-medium text-slate-900">
-                  {formatCurrency(sale.total)}
+                  {formatCurrency(sale.total_amount)}
                 </td>
               </tr>
             ))}

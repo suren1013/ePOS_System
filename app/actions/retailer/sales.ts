@@ -74,7 +74,7 @@ export async function getTodaySalesMetrics(): Promise<ActionResult<TodaySalesMet
     }
 
     const rows = data ?? [];
-    const todaySalesAmount = rows.reduce((sum, row) => sum + Number(row.total), 0);
+    const todaySalesAmount = rows.reduce((sum, row) => sum + Number(row.total_amount), 0);
 
     return {
       success: true,
@@ -118,7 +118,7 @@ export async function getRetailerDashboardData(): Promise<ActionResult<RetailerD
       data: {
         metrics: {
           todaySalesAmount: Math.round(
-            todayRows.reduce((sum, row) => sum + Number(row.total), 0) * 100
+            todayRows.reduce((sum, row) => sum + Number(row.total_amount), 0) * 100
           ) / 100,
           todayTransactionCount: todayRows.length,
         },
@@ -140,7 +140,7 @@ export async function completeSale(
       return { success: false, error: parsed.error };
     }
 
-    const { data: saleId, error } = await completeSaleTransaction(
+    const { data: rpcResponse, error } = await completeSaleTransaction(
       parsed.data.payment_method,
       parsed.data.items
     );
@@ -152,7 +152,7 @@ export async function completeSale(
       return { success: false, error: message };
     }
 
-    if (!saleId) {
+    if (!rpcResponse || !rpcResponse.success || !rpcResponse.sale_id) {
       return { success: false, error: "Failed to complete sale." };
     }
 
@@ -167,7 +167,8 @@ export async function completeSale(
     return {
       success: true,
       data: {
-        saleId,
+        sale_id: rpcResponse.sale_id,
+        total_amount: rpcResponse.total_amount,
         updatedInventory: updatedInventory ?? [],
       },
     };

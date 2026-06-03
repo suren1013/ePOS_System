@@ -117,7 +117,8 @@ export function PosWorkspace({ initialInventory, loadError }: PosWorkspaceProps)
 
       setInventory(result.data.updatedInventory);
       setCartLines([]);
-      setSuccessMessage(`Sale completed. Receipt #${result.data.saleId.slice(0, 8)}…`);
+      const receiptNumber = result.data.sale_id ? result.data.sale_id.slice(0, 8) : 'UNKNOWN';
+      setSuccessMessage(`Sale completed. Receipt #${receiptNumber}`);
     });
   }, [cartLines, paymentMethod]);
 

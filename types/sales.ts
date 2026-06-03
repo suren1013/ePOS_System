@@ -36,9 +36,9 @@ export interface CheckoutInput {
 
 export interface SaleSummary {
   id: string;
-  subtotal: number;
-  total: number;
+  total_amount: number;
   payment_method: PaymentMethod;
+  status: string;
   created_at: string;
 }
 
@@ -53,6 +53,7 @@ export interface RetailerDashboardData {
 }
 
 export interface CompleteSaleResult {
-  saleId: string;
+  sale_id: string;
+  total_amount: number;
   updatedInventory: InventoryItem[];
 }

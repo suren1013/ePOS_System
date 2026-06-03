@@ -90,25 +90,28 @@ export type Database = {
         Row: {
           id: string;
           retailer_id: string;
-          subtotal: number;
-          total: number;
+          customer_id: string | null;
+          total_amount: number;
           payment_method: string;
+          status: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           retailer_id: string;
-          subtotal: number;
-          total: number;
+          customer_id?: string | null;
+          total_amount: number;
           payment_method: string;
+          status?: string;
           created_at?: string;
         };
         Update: {
           id?: string;
           retailer_id?: string;
-          subtotal?: number;
-          total?: number;
+          customer_id?: string | null;
+          total_amount?: number;
           payment_method?: string;
+          status?: string;
           created_at?: string;
         };
         Relationships: [
@@ -126,25 +129,31 @@ export type Database = {
           id: string;
           sale_id: string;
           product_id: string;
+          wholesaler_id: string;
           quantity: number;
           unit_price: number;
-          line_total: number;
+          cost_basis: number;
+          subtotal: number;
         };
         Insert: {
           id?: string;
           sale_id: string;
           product_id: string;
+          wholesaler_id: string;
           quantity: number;
           unit_price: number;
-          line_total: number;
+          cost_basis: number;
+          subtotal: number;
         };
         Update: {
           id?: string;
           sale_id?: string;
           product_id?: string;
+          wholesaler_id?: string;
           quantity?: number;
           unit_price?: number;
-          line_total?: number;
+          cost_basis?: number;
+          subtotal?: number;
         };
         Relationships: [
           {
