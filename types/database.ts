@@ -86,12 +86,95 @@ export type Database = {
           },
         ];
       };
+      sales: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          subtotal: number;
+          total: number;
+          payment_method: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          subtotal: number;
+          total: number;
+          payment_method: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          subtotal?: number;
+          total?: number;
+          payment_method?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sales_retailer_id_fkey";
+            columns: ["retailer_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      sale_items: {
+        Row: {
+          id: string;
+          sale_id: string;
+          product_id: string;
+          quantity: number;
+          unit_price: number;
+          line_total: number;
+        };
+        Insert: {
+          id?: string;
+          sale_id: string;
+          product_id: string;
+          quantity: number;
+          unit_price: number;
+          line_total: number;
+        };
+        Update: {
+          id?: string;
+          sale_id?: string;
+          product_id?: string;
+          quantity?: number;
+          unit_price?: number;
+          line_total?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_sale_id_fkey";
+            columns: ["sale_id"];
+            isOneToOne: false;
+            referencedRelation: "sales";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sale_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      complete_retailer_sale: {
+        Args: {
+          p_payment_method: string;
+          p_items: Json;
+        };
+        Returns: string;
+      };
     };
   };
 };

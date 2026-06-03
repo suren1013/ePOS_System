@@ -1,32 +1,40 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getRetailerDashboardData } from "@/app/actions/retailer/sales";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { DashboardPlaceholder } from "@/components/dashboard/dashboard-placeholder";
-import { RETAILER_NAV, RETAILER_ROUTES } from "@/lib/auth/routes";
+import { RetailerDashboardMetrics } from "@/components/retailer/dashboard/retailer-dashboard-metrics";
+import { RETAILER_NAV } from "@/lib/auth/routes";
 
 export const metadata: Metadata = {
   title: "Retailer",
 };
 
-export default function RetailerDashboardPage() {
+export default async function RetailerDashboardPage() {
+  const result = await getRetailerDashboardData();
+
+  if (!result.success) {
+    return (
+      <DashboardShell
+        title="Retailer dashboard"
+        roleLabel="Retailer"
+        navItems={[...RETAILER_NAV]}
+      >
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          {result.error}
+        </p>
+      </DashboardShell>
+    );
+  }
+
   return (
     <DashboardShell
       title="Retailer dashboard"
       roleLabel="Retailer"
       navItems={[...RETAILER_NAV]}
     >
-      <DashboardPlaceholder
-        heading="Retailer workspace"
-        description="Track stock levels and retail pricing from the Inventory section."
+      <RetailerDashboardMetrics
+        metrics={result.data.metrics}
+        lowStockItems={result.data.lowStockItems}
       />
-      <p className="mt-4 text-center text-sm">
-        <Link
-          href={RETAILER_ROUTES.inventory}
-          className="font-medium text-brand-600 hover:underline"
-        >
-          Go to Inventory →
-        </Link>
-      </p>
     </DashboardShell>
   );
 }
