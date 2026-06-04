@@ -22,6 +22,9 @@ export async function requireWholesaler(): Promise<string> {
     error,
   } = await supabase.auth.getUser();
 
+  console.log("[requireWholesaler] auth.uid():", user?.id);
+  console.log("[requireWholesaler] user_metadata:", user?.user_metadata);
+
   if (error || !user) {
     throw new AuthError("You must be signed in.", "UNAUTHORIZED");
   }
@@ -31,5 +34,6 @@ export async function requireWholesaler(): Promise<string> {
     throw new AuthError("Wholesaler access only.", "FORBIDDEN");
   }
 
+  console.log("[requireWholesaler] returning wholesalerId:", user.id);
   return user.id;
 }
