@@ -20,6 +20,8 @@ export interface CartLine {
   unitPrice: number;
   quantity: number;
   maxStock: number;
+  discount?: number;
+  tax?: number;
 }
 
 export interface CheckoutLineInput {
