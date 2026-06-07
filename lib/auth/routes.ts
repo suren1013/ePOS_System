@@ -25,13 +25,21 @@ export const RETAILER_ROUTES = {
   overview: DASHBOARD_ROUTES.retailer,
   inventory: "/retailer/inventory",
   inventoryAdd: "/retailer/inventory/add",
+  inventoryImport: "/retailer/inventory/import",
   pos: "/retailer/pos",
   sales: "/retailer/sales",
 } as const;
 
 export const RETAILER_NAV = [
   { label: "Overview", href: RETAILER_ROUTES.overview },
-  { label: "Inventory", href: RETAILER_ROUTES.inventory },
+  { 
+    label: "Inventory", 
+    href: RETAILER_ROUTES.inventory,
+    children: [
+      { label: "Inventory", href: RETAILER_ROUTES.inventory },
+      { label: "Import Invoice", href: RETAILER_ROUTES.inventoryImport },
+    ]
+  },
   { label: "POS", href: RETAILER_ROUTES.pos },
   { label: "Sales", href: RETAILER_ROUTES.sales },
 ] as const;
