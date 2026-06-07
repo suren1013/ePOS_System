@@ -11,7 +11,7 @@ import { useState } from "react";
 interface NavItem {
   label: string;
   href: string;
-  children?: NavItem[];
+  children?: readonly NavItem[];
 }
 
 interface DashboardShellProps {

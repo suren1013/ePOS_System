@@ -34,6 +34,8 @@ export default async function RetailerDashboardPage() {
       <RetailerDashboardMetrics
         metrics={result.data.metrics}
         lowStockItems={result.data.lowStockItems}
+        bestSellingProducts={result.data.bestSellingProducts}
+        recentSales={result.data.recentSales}
       />
     </DashboardShell>
   );

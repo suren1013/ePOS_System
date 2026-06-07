@@ -49,9 +49,27 @@ export interface TodaySalesMetrics {
   todayTransactionCount: number;
 }
 
+export interface ExtendedSalesMetrics {
+  todaySalesAmount: number;
+  weekSalesAmount: number;
+  monthSalesAmount: number;
+  todayTransactionCount: number;
+}
+
+export interface BestSellingProduct {
+  id: string;
+  productName: string;
+  sku: string;
+  barcode: string | null;
+  totalSold: number;
+  totalRevenue: number;
+}
+
 export interface RetailerDashboardData {
-  metrics: TodaySalesMetrics;
+  metrics: ExtendedSalesMetrics;
   lowStockItems: InventoryItem[];
+  bestSellingProducts: BestSellingProduct[];
+  recentSales: SaleSummary[];
 }
 
 export interface CompleteSaleResult {
