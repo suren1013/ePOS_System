@@ -280,13 +280,59 @@ export function PosWorkspace({ initialInventory, loadError }: PosWorkspaceProps)
   }, []);
 
   const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter" || e.key === "Escape") {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const query = searchQuery.trim();
+      console.log("handleSearchKeyDown - Enter pressed, query:", query);
+
+      // Defensive guard: do nothing if search is empty
+      if (!query) {
+        console.log("Search query is empty, doing nothing");
+        return;
+      }
+
+      // Check if query matches a barcode exactly
+      const barcodeMatch = inventory.find(
+        (item) => item.barcode === query && item.stock_quantity > 0
+      );
+
+      if (barcodeMatch) {
+        console.log("Barcode match found:", barcodeMatch);
+        handleAddToCart(barcodeMatch);
+        setSearchQuery("");
+        setIsSearchDropdownOpen(false);
+        setSelectedSearchIndex(null);
+        // Auto-focus back to search field for rapid scanning
+        setTimeout(() => {
+          searchInputRef.current?.focus();
+        }, 50);
+      } else if (isSearchDropdownOpen && selectedSearchIndex !== null) {
+        // If dropdown is open and item is selected, add it
+        const selectedItem = filteredProducts[selectedSearchIndex];
+        if (selectedItem) {
+          console.log("Enter - adding selected item:", selectedItem);
+          handleAddToCart(selectedItem);
+        }
+      } else if (filteredProducts.length > 0) {
+        // Open dropdown for manual selection (do not auto-add)
+        console.log("Opening dropdown for manual selection");
+        setIsSearchDropdownOpen(true);
+        setSelectedSearchIndex(0);
+      } else {
+        // No match found - show warning and keep focus
+        console.log("No product found for query:", query);
+        setCheckoutError(`Product not found: ${query}`);
+        setTimeout(() => setCheckoutError(null), 3000);
+        // Keep focus in search field
+        searchInputRef.current?.focus();
+      }
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Escape") {
       if (!isSearchDropdownOpen && filteredProducts.length > 0) {
         setIsSearchDropdownOpen(true);
         setSelectedSearchIndex(0);
       }
     }
-  }, [isSearchDropdownOpen, filteredProducts.length]);
+  }, [searchQuery, inventory, isSearchDropdownOpen, selectedSearchIndex, filteredProducts, handleAddToCart]);
 
   const handleSearchFocus = useCallback(() => {
     if (searchQuery.trim().length > 0) {
@@ -312,7 +358,7 @@ export function PosWorkspace({ initialInventory, loadError }: PosWorkspaceProps)
         <div className="flex-1 relative">
           <Input
             ref={searchInputRef}
-            placeholder="Search by barcode, SKU, or product name... (F1 to focus, Arrow keys to navigate, Enter to select)"
+            placeholder="Scan barcode or search by SKU/product name... (F1 to focus, Enter to add)"
             value={searchQuery}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
