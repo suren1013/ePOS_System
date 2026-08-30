@@ -47,12 +47,143 @@ export type Database = {
         };
         Relationships: ProductRelationship[];
       };
+      retailer_inventory: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          product_id: string;
+          stock_quantity: number;
+          retail_price: number;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          product_id: string;
+          stock_quantity: number;
+          retail_price: number;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          product_id?: string;
+          stock_quantity?: number;
+          retail_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "retailer_inventory_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retailer_inventory_retailer_id_fkey";
+            columns: ["retailer_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      sales: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          customer_id: string | null;
+          total_amount: number;
+          payment_method: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          customer_id?: string | null;
+          total_amount: number;
+          payment_method: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          customer_id?: string | null;
+          total_amount?: number;
+          payment_method?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sales_retailer_id_fkey";
+            columns: ["retailer_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      sale_items: {
+        Row: {
+          id: string;
+          sale_id: string;
+          product_id: string;
+          wholesaler_id: string;
+          quantity: number;
+          unit_price: number;
+          cost_basis: number;
+          subtotal: number;
+        };
+        Insert: {
+          id?: string;
+          sale_id: string;
+          product_id: string;
+          wholesaler_id: string;
+          quantity: number;
+          unit_price: number;
+          cost_basis: number;
+          subtotal: number;
+        };
+        Update: {
+          id?: string;
+          sale_id?: string;
+          product_id?: string;
+          wholesaler_id?: string;
+          quantity?: number;
+          unit_price?: number;
+          cost_basis?: number;
+          subtotal?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_sale_id_fkey";
+            columns: ["sale_id"];
+            isOneToOne: false;
+            referencedRelation: "sales";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sale_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      complete_retailer_sale: {
+        Args: {
+          p_payment_method: string;
+          p_items: Json;
+        };
+        Returns: string;
+      };
     };
   };
 };

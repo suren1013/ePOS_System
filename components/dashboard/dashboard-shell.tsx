@@ -29,7 +29,7 @@ export function DashboardShell({
   const pathname = usePathname();
 
   function isNavActive(href: string) {
-    if (href === "/wholesaler") {
+    if (href === "/wholesaler" || href === "/retailer") {
       return pathname === href;
     }
     return pathname === href || pathname.startsWith(`${href}/`);

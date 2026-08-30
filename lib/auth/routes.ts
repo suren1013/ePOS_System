@@ -21,6 +21,21 @@ export const WHOLESALER_NAV = [
   { label: "Products", href: WHOLESALER_ROUTES.products },
 ] as const;
 
+export const RETAILER_ROUTES = {
+  overview: DASHBOARD_ROUTES.retailer,
+  inventory: "/retailer/inventory",
+  inventoryAdd: "/retailer/inventory/add",
+  pos: "/retailer/pos",
+  sales: "/retailer/sales",
+} as const;
+
+export const RETAILER_NAV = [
+  { label: "Overview", href: RETAILER_ROUTES.overview },
+  { label: "Inventory", href: RETAILER_ROUTES.inventory },
+  { label: "POS", href: RETAILER_ROUTES.pos },
+  { label: "Sales", href: RETAILER_ROUTES.sales },
+] as const;
+
 export const DEFAULT_DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   retailer: DASHBOARD_ROUTES.retailer,
   wholesaler: DASHBOARD_ROUTES.wholesaler,
