@@ -4,6 +4,7 @@ import { RETAILER_ROUTES } from "@/lib/auth/routes";
 import { formatCurrency } from "@/lib/utils/format";
 import type { InventoryItem } from "@/types/inventory";
 import type { TodaySalesMetrics } from "@/types/sales";
+import { Button } from "@/components/ui/button";
 
 interface RetailerDashboardMetricsProps {
   metrics: TodaySalesMetrics;
@@ -36,6 +37,22 @@ export function RetailerDashboardMetrics({
           <p className="mt-2 text-2xl font-semibold text-slate-900">
             {metrics.todayTransactionCount}
           </p>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">Import Supplier Invoice</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Upload supplier bills and automatically update inventory using AI extraction.
+            </p>
+          </div>
+          <Link href={RETAILER_ROUTES.inventoryImport}>
+            <Button variant="primary" size="sm">
+              Import Now
+            </Button>
+          </Link>
         </div>
       </div>
 

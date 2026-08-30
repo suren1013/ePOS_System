@@ -30,6 +30,10 @@ type InventoryQuery = {
         data: InventoryRowWithProduct[] | null;
         error: { message: string; code?: string } | null;
       }>;
+      maybeSingle: () => Promise<{
+        data: InventoryRowWithProduct | null;
+        error: { message: string } | null;
+      }>;
     };
   };
   insert: (row: RetailerInventoryInsert) => {
@@ -134,6 +138,39 @@ export async function updateInventoryRow(
 export async function deleteInventoryRow(inventoryId: string, retailerId: string) {
   const supabase = await createClient();
   return inventoryTable(supabase).delete().eq("id", inventoryId).eq("retailer_id", retailerId);
+}
+
+export async function findProductByBarcode(barcode: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("id")
+    .eq("barcode", barcode)
+    .maybeSingle();
+  
+  if (error) {
+    console.error("Error finding product by barcode:", error);
+    return null;
+  }
+  
+  return data;
+}
+
+export async function findRetailerInventory(retailerId: string, productId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("retailer_inventory")
+    .select("*")
+    .eq("retailer_id", retailerId)
+    .eq("product_id", productId)
+    .maybeSingle();
+  
+  if (error) {
+    console.error("Error finding retailer inventory:", error);
+    return null;
+  }
+  
+  return data as any;
 }
 
 export function isUniqueViolation(error: { code?: string } | null): boolean {

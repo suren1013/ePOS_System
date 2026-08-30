@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { InventoryFilters } from "@/components/retailer/inventory/inventory-filters";
 import { InventoryTable } from "@/components/retailer/inventory/inventory-table";
 import { RemoveStockDialog } from "@/components/retailer/inventory/remove-stock-dialog";
@@ -52,12 +53,18 @@ export function InventoryManager({ initialItems, loadError }: InventoryManagerPr
         <p className="text-sm text-slate-500">
           {items.length} product{items.length === 1 ? "" : "s"} in inventory
         </p>
-        <Link
-          href={RETAILER_ROUTES.inventoryAdd}
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700"
-        >
-          Add stock
-        </Link>
+        <div className="flex gap-3">
+          <Link href={RETAILER_ROUTES.inventoryImport}>
+            <Button variant="secondary" size="md">
+              Import Invoice
+            </Button>
+          </Link>
+          <Link href={RETAILER_ROUTES.inventoryAdd}>
+            <Button variant="primary" size="md">
+              Add stock
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {loadError && (
