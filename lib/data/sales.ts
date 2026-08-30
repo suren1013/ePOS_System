@@ -63,6 +63,22 @@ export function getStartOfTodayIso(): string {
   return start.toISOString();
 }
 
+export function getStartOfWeekIso(): string {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const start = new Date(now.setDate(diff));
+  start.setHours(0, 0, 0, 0);
+  return start.toISOString();
+}
+
+export function getStartOfMonthIso(): string {
+  const start = new Date();
+  start.setDate(1);
+  start.setHours(0, 0, 0, 0);
+  return start.toISOString();
+}
+
 export async function listRecentSales(retailerId: string, limit = 50) {
   const supabase = await createClient();
   return salesTable(supabase)
@@ -78,6 +94,88 @@ export async function getTodaySalesRows(retailerId: string) {
     .select("total_amount")
     .eq("retailer_id", retailerId)
     .gte("created_at", getStartOfTodayIso());
+}
+
+export async function getWeekSalesRows(retailerId: string) {
+  const supabase = await createClient();
+  return salesTable(supabase)
+    .select("total_amount")
+    .eq("retailer_id", retailerId)
+    .gte("created_at", getStartOfWeekIso());
+}
+
+export async function getMonthSalesRows(retailerId: string) {
+  const supabase = await createClient();
+  return salesTable(supabase)
+    .select("total_amount")
+    .eq("retailer_id", retailerId)
+    .gte("created_at", getStartOfMonthIso());
+}
+
+export async function getBestSellingProducts(retailerId: string, limit = 5) {
+  const supabase = await createClient();
+  // Get recent sales IDs (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const { data: sales } = await supabase
+    .from("sales")
+    .select("id")
+    .eq("retailer_id", retailerId)
+    .gte("created_at", thirtyDaysAgo.toISOString());
+  
+  if (!sales || sales.length === 0) {
+    return { data: [], error: null };
+  }
+  
+  const saleIds = sales.map((s: any) => s.id);
+  
+  // Get all sale items for these sales
+  const { data: saleItems, error } = await supabase
+    .from("sale_items")
+    .select("product_id, quantity")
+    .in("sale_id", saleIds);
+  
+  if (error) {
+    return { data: null, error };
+  }
+  
+  // Aggregate by product
+  const productSales = new Map<string, { totalSold: number; totalRevenue: number }>();
+  
+  for (const item of saleItems || []) {
+    const productId = (item as any).product_id;
+    const quantity = (item as any).quantity;
+    
+    if (!productSales.has(productId)) {
+      productSales.set(productId, { totalSold: 0, totalRevenue: 0 });
+    }
+    
+    const current = productSales.get(productId)!;
+    current.totalSold += quantity;
+  }
+  
+  // Get product details
+  const productIds = Array.from(productSales.keys());
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, name, sku, barcode, suggested_retail_price")
+    .in("id", productIds);
+  
+  // Combine data and sort by total sold
+  const bestSelling = (products || []).map((p: any) => {
+    const sales = productSales.get(p.id)!;
+    return {
+      id: p.id,
+      productName: p.name,
+      sku: p.sku,
+      barcode: p.barcode,
+      totalSold: sales.totalSold,
+      totalRevenue: sales.totalSold * (p.suggested_retail_price || 0),
+    };
+  }).sort((a, b) => b.totalSold - a.totalSold).slice(0, limit);
+  
+  return { data: bestSelling, error: null };
 }
 
 export async function completeSaleTransaction(

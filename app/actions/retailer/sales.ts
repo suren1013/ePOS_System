@@ -7,6 +7,9 @@ import {
   completeSaleTransaction,
   fetchInventoryAfterSale,
   getTodaySalesRows,
+  getWeekSalesRows,
+  getMonthSalesRows,
+  getBestSellingProducts,
   listRecentSales,
   mapSaleRow,
 } from "@/lib/data/sales";
@@ -92,22 +95,44 @@ export async function getRetailerDashboardData(): Promise<ActionResult<RetailerD
   try {
     const retailerId = await requireRetailer();
 
-    const [metricsResult, inventoryResult] = await Promise.all([
+    const [todayResult, weekResult, monthResult, inventoryResult, bestSellingResult, recentSalesResult] = await Promise.all([
       getTodaySalesRows(retailerId),
+      getWeekSalesRows(retailerId),
+      getMonthSalesRows(retailerId),
       listInventoryByRetailer(retailerId),
+      getBestSellingProducts(retailerId, 5),
+      listRecentSales(retailerId, 10),
     ]);
 
-    if (metricsResult.error) {
-      return { success: false, error: metricsResult.error.message };
+    if (todayResult.error) {
+      return { success: false, error: todayResult.error.message };
+    }
+    if (weekResult.error) {
+      return { success: false, error: weekResult.error.message };
+    }
+    if (monthResult.error) {
+      return { success: false, error: monthResult.error.message };
     }
     if (inventoryResult.error) {
       return { success: false, error: inventoryResult.error.message };
     }
+    if (bestSellingResult.error) {
+      return { success: false, error: bestSellingResult.error.message };
+    }
+    if (recentSalesResult.error) {
+      return { success: false, error: recentSalesResult.error.message };
+    }
 
-    const todayRows = metricsResult.data ?? [];
+    const todayRows = todayResult.data ?? [];
+    const weekRows = weekResult.data ?? [];
+    const monthRows = monthResult.data ?? [];
     const inventory = (inventoryResult.data ?? [])
       .map(mapInventoryRow)
       .filter((item): item is InventoryItem => item !== null);
+    const bestSelling = bestSellingResult.data ?? [];
+    const recentSales = (recentSalesResult.data ?? [])
+      .map(mapSaleRow)
+      .filter((sale): sale is SaleSummary => sale !== null);
 
     const lowStockItems = inventory.filter(
       (item) => item.stock_quantity < LOW_STOCK_THRESHOLD
@@ -120,9 +145,17 @@ export async function getRetailerDashboardData(): Promise<ActionResult<RetailerD
           todaySalesAmount: Math.round(
             todayRows.reduce((sum, row) => sum + Number(row.total_amount), 0) * 100
           ) / 100,
+          weekSalesAmount: Math.round(
+            weekRows.reduce((sum, row) => sum + Number(row.total_amount), 0) * 100
+          ) / 100,
+          monthSalesAmount: Math.round(
+            monthRows.reduce((sum, row) => sum + Number(row.total_amount), 0) * 100
+          ) / 100,
           todayTransactionCount: todayRows.length,
         },
         lowStockItems,
+        bestSellingProducts: bestSelling,
+        recentSales,
       },
     };
   } catch (err) {
